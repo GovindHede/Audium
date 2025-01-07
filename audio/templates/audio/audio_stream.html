@@ -1,0 +1,101 @@
+{% extends 'audio/base.html' %}
+
+{% block content %}
+<h2>Trending Audio Streams</h2>
+
+<!-- Sorting Options -->
+<div style="margin-bottom: 20px;">
+    <a href="?sort_by=recent" style="margin-right: 10px; text-decoration: none; color: {% if sort_by == 'recent' %}blue{% else %}black{% endif %};">Recent</a>
+    <a href="?sort_by=likes" style="text-decoration: none; color: {% if sort_by == 'likes' %}blue{% else %}black{% endif %};">Most Likes</a>
+</div>
+
+<!-- Audio List -->
+<ul>
+    {% for audio in page_obj %}
+    <li>
+        <div class="audio-post">
+            <strong>{{ audio.title }}</strong> - Uploaded on {{ audio.uploaded_at|date:"d M Y" }}
+            <audio controls>
+                <source src="{{ audio.audio_file.url }}" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+            <p>{{ audio.description }}</p>
+            <p><strong>Uploaded by:</strong> {{ audio.uploader.username }}</p>
+            <p><strong>Uploaded on:</strong> {{ audio.created_at|date:"F j, Y, g:i a" }}</p>
+            {% if audio.hashtag %}
+            <p><strong>Hashtag:</strong> #{{ audio.hashtag }}</p>
+            {% endif %}
+            <button 
+                class="like-btn" 
+                data-audio-id="{{ audio.id }}" 
+                data-liked="{{ user in audio.likes.all }}"
+            >
+                <span class="like-icon">{% if user in audio.likes.all %}❤️{% else %}♡{% endif %}</span>
+                <span class="like-count">{{ audio.total_likes }}</span>
+            </button>
+        </div>
+
+        <!-- Audio player using WaveSurfer.js -->
+        <div id="waveform_{{ audio.id }}" style="width: 100%; height: 128px;"></div>
+        <!-- Play/Pause Button -->
+        <button id="play_{{ audio.id }}">Play/Pause</button>
+        <div>Likes: {{ audio.likes }}</div>
+    </li>
+    {% endfor %}
+</ul>
+
+<!-- Pagination -->
+<div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1&sort_by={{ sort_by }}">First</a>
+            <a href="?page={{ page_obj.previous_page_number }}&sort_by={{ sort_by }}">Previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}&sort_by={{ sort_by }}">Next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}&sort_by={{ sort_by }}">Last</a>
+        {% endif %}
+    </span>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const likeButtons = document.querySelectorAll('.like-btn');
+
+        likeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const audioId = this.getAttribute('data-audio-id');
+                const isLiked = this.getAttribute('data-liked') === 'true';
+
+                fetch(`/toggle-like/${audioId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.liked) {
+                        this.querySelector('.like-icon').textContent = '❤️';
+                        this.setAttribute('data-liked', 'true');
+                    } else {
+                        this.querySelector('.like-icon').textContent = '♡';
+                        this.setAttribute('data-liked', 'false');
+                    }
+                    this.querySelector('.like-count').textContent = data.total_likes;
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        });
+    });
+</script>
+
+{% endblock %}
+{% endblock %}

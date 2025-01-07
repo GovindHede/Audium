@@ -1,0 +1,16 @@
+{% extends 'audio/base.html' %}
+
+{% block content %}
+<h2>Edit Profile</h2>
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label for="profile_picture">Profile Picture:</label>
+    <input type="file" name="profile_picture" id="profile_picture"><br>
+
+    <label for="bio">Bio:</label><br>
+    <textarea name="bio" id="bio" rows="5">{{ profile.bio }}</textarea><br>
+
+    <button type="submit">Save Changes</button>
+</form>
+<a href="{% url 'profile' %}">Back to Profile</a>
+{% endblock %}

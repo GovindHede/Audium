@@ -1,0 +1,24 @@
+{% extends 'audio/base.html' %}
+
+{% block content %}
+<h2>Profile</h2>
+<img src="{{ profile_picture_url }}" alt="Profile Picture" width="150" height="150">
+<p><strong>Username:</strong> {{ profile.user.username }}</p>
+<p><strong>Email:</strong> {{ profile.user.email }}</p>
+<p><strong>Mobile No:</strong> {{ profile.user.mobile }}</p>
+<p><strong>Bio:</strong> {{ profile.bio }}</p>
+
+<h3>Your Audio Posts</h3>
+<ul>
+    {% for post in audio_posts %}
+    <li>
+        <h4>{{ post.title }}</h4>
+        <audio controls>
+            <source src="{{ post.audio_file.url }}" type="audio/mpeg">
+        </audio>
+    </li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'edit_profile' %}">Edit Profile</a>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'audio/base.html' %}
+
+{% block content %}
+<h2>Comment on: {{ audio.title }}</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Submit Comment</button>
+</form>
+
+<p style="margin-top: 20px;">
+    <a href="{% url 'audio_list' %}" style="color: #007bff;">Back to Audio List</a>
+</p>
+{% endblock %}

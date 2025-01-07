@@ -1,0 +1,24 @@
+{% extends 'audio/base.html' %}
+
+{% block content %}
+    <h2>All Audio Posts</h2>
+    <div class="audio-list">
+        {% for audio in audio_posts %}
+            <div class="audio-item">
+                <h3><a href="{% url 'audio_detail' audio.id %}">{{ audio.title }}</a></h3>
+                <p>{{ audio.description|truncatewords:20 }}</p>
+                <p>Likes: {{ audio.total_likes }}</p>
+                <!-- Like button -->
+                <button data-audio-id="{{ audio.id }}" class="like-button">
+                    {% if user in audio.likes.all %}
+                        Unlike
+                    {% else %}
+                        Like
+                    {% endif %}
+                </button>
+            </div>
+        {% empty %}
+            <p>No audio posts found.</p>
+        {% endfor %}
+    </div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends 'audio/base.html' %}
+
+{% block content %}
+    <div class="audio-detail">
+        <h2>{{ audio_post.title }}</h2>
+        <p>Posted by <strong>{{ audio_post.user.username }}</strong> on {{ audio_post.created_at|date:"F j, Y, g:i a" }}</p>
+        
+        <audio controls>
+            <source src="{{ audio_post.audio_file.url }}" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+        <p>{{ audio_post.description }}</p>
+
+        <!-- Like Section -->
+        <div>
+            <button 
+                class="like-btn" 
+                data-audio-id="{{ audio_post.id }}" 
+                data-liked="{{ user_has_liked|yesno:'true,false' }}">
+                <span class="like-icon">{% if user_has_liked %}❤️{% else %}♡{% endif %}</span>
+                <span class="like-count">{{ audio_post.total_likes }}</span> Likes
+            </button>
+        </div>
+
+        <!-- Comments Section -->
+        <div class="comments-section">
+            <h3>Comments</h3>
+            {% for comment in page_obj %}
+                <div class="comment">
+                    <p><strong>{{ comment.user.username }}</strong>: {{ comment.content }}</p>
+                    <small class="text-muted">{{ comment.created_at|date:"F j, Y, g:i a" }}</small>
+                </div>
+            {% empty %}
+                <p>No comments yet. Be the first to comment!</p>
+            {% endfor %}
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <nav>
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-light">Previous</a>
+                    {% endif %}
+                    <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="btn btn-light">Next</a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+
+        <!-- Add Comment Form -->
+        <div class="add-comment-form">
+            {% if user.is_authenticated %}
+                <h3>Add a Comment</h3>
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary">Post Comment</button>
+                </form>
+            {% else %}
+                <p><a href="{% url 'login' %}">Log in</a> to add a comment.</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

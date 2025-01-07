@@ -1,0 +1,47 @@
+{% extends "audio/base.html" %}
+
+{% block content %}
+<h1>All Audio Posts</h1>
+
+{% for post in posts %}
+<div class="audio-post">
+    <h2>{{ post.title }}</h2>
+    <p>{{ post.description }}</p>
+
+    <!-- Display the audio file -->
+    <audio controls>
+        <source src="{{ post.audio.url }}" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <!-- Like Button -->
+    <button 
+        class="like-button" 
+        data-post-id="{{ post.id }}" 
+        style="color: {% if user in post.likes.all %}red{% else %}black{% endif %};">
+        Like
+    </button>
+    <span>{{ post.total_likes }} Likes</span>
+
+    <!-- Comments -->
+    <div class="comments-section">
+        <h4>Comments:</h4>
+        {% for comment in post.comments.all %}
+            <p><strong>{{ comment.user.username }}</strong>: {{ comment.content }}</p>
+        {% empty %}
+            <p>No comments yet.</p>
+        {% endfor %}
+        <!-- Add Comment Form -->
+        {% if user.is_authenticated %}
+        <form method="POST" action="{% url 'add_comment' post.id %}">
+            {% csrf_token %}
+            <textarea name="content" placeholder="Add a comment..." required></textarea>
+            <button type="submit">Comment</button>
+        </form>
+        {% else %}
+        <p><a href="{% url 'login' %}">Log in</a> to comment.</p>
+        {% endif %}
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'audio/base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Search Results</h1>
+    <div class="audio-posts">
+        {% for post in results %}
+        <div class="audio-post">
+            <h2>{{ post.title }}</h2>
+            <p>Uploaded on {{ post.created_at|date:"F j, Y, g:i a" }}</p>
+            <audio controls>
+                <source src="{{ post.audio_file.url }}" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+        </div>
+        {% empty %}
+        <p>No results found.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
